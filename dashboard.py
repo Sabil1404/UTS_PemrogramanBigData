@@ -5,49 +5,60 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 
-# ==========================
-# Load Models
-# ==========================
-@st.cache_resource
-def load_models():
-    # Pastikan path sesuai struktur folder kamu
-    yolo_model = YOLO("model/Azzahra Salsabil Lubis_Laporan 4.pt")
-    classifier = tf.keras.models.load_model("model/Azzahra_Salsabil_Lubis_Laporan2.h5")
+# -------------------------------------------------
+# DEBUG READY: kode ini menampilkan info di logs
+# -------------------------------------------------
+st.set_page_config(page_title="Debug App", layout="wide")
+
+# Tampilkan versi file yg sedang dijalankan (ini akan muncul di logs)
+print("=== DASHBOARD.PY STARTED ===")
+print("If you see this line in Streamlit logs, this is the current file being executed.")
+
+# =================================
+# Try load models but with try/except
+# =================================
+def load_models_safe():
+    try:
+        print("Trying to load YOLO model from: model/Azzahra Salsabil Lubis_Laporan 4.pt")
+        yolo_model = YOLO("model/Azzahra Salsabil Lubis_Laporan 4.pt")
+        print("YOLO loaded OK")
+    except Exception as e:
+        yolo_model = None
+        print("YOLO load ERROR:", repr(e))
+        st.error("YOLO load ERROR (lihat logs).")
+
+    try:
+        print("Trying to load Keras model from: model/Azzahra_Salsabil_Lubis_Laporan2.h5")
+        classifier = tf.keras.models.load_model("model/Azzahra_Salsabil_Lubis_Laporan2.h5")
+        print("Keras model loaded OK")
+    except Exception as e:
+        classifier = None
+        print("Keras load ERROR:", repr(e))
+        st.error("Keras load ERROR (lihat logs).")
+
     return yolo_model, classifier
 
-yolo_model, classifier = load_models()
+yolo_model, classifier = load_models_safe()
 
-# ==========================
-# UI
-# ==========================
-st.title("🧠 Image Classification & Object Detection App")
+# =================================
+# Simple UI to test if models exist
+# =================================
+st.title("DEBUG: Image App")
 
-menu = st.sidebar.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+st.write("YOLO model loaded:", bool(yolo_model))
+st.write("Classifier loaded:", bool(classifier))
 
-uploaded_file = st.file_uploader("Unggah Gambar", type=["jpg", "jpeg", "png"])
+st.write("---- Directory listing (may help) ----")
+# print directory listing to logs (not requiring os in UI)
+try:
+    import os
+    print("CWD:", os.getcwd())
+    print("Files here:", os.listdir())
+    if "model" in os.listdir():
+        print("MODEL folder contents:", os.listdir("model"))
+    else:
+        print("No model folder in current dir.")
+except Exception as e:
+    print("Could not list directories:", repr(e))
 
-if uploaded_file is not None:
-    img = Image.open(uploaded_file).convert("RGB")
-    st.image(img, caption="Gambar yang Diupload", use_container_width=True)
-
-    if menu == "Deteksi Objek (YOLO)":
-        st.write("🔍 Sedang mendeteksi objek...")
-        results = yolo_model(img)
-        result_img = results[0].plot()
-        st.image(result_img, caption="Hasil Deteksi Objek", use_container_width=True)
-
-    elif menu == "Klasifikasi Gambar":
-        st.write("🧩 Sedang mengklasifikasi gambar...")
-
-        img_resized = img.resize((224, 224))
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
-
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
-        confidence = float(np.max(prediction))
-
-        st.write("### Hasil Prediksi:")
-        st.success(f"Label: {class_index}")
-        st.info(f"Akurasi: {confidence:.2%}")
+st.write("Lihat *Logs* di Streamlit Cloud untuk output debug (Manage app → Logs).")
