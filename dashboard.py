@@ -24,18 +24,24 @@ def load_models_safe():
     yolo_model = None
     classifier = None
 
+    # Memuat YOLO model
     try:
-        st.write("Mencoba memuat model YOLO dari: model/Azzahra Salsabil Lubis_Laporan 4.pt")
-        yolo_model = YOLO("model/Azzahra Salsabil Lubis_Laporan 4.pt")
-        logger.info("YOLO model berhasil dimuat")
+        model_path_yolo = "model/Azzahra Salsabil Lubis_Laporan 4.pt"
+        st.write(f"Mencoba memuat model YOLO dari: {model_path_yolo}")
+        yolo_model = YOLO(model_path_yolo)
+        logger.info(f"YOLO model berhasil dimuat dari {model_path_yolo}")
+        st.write("YOLO model berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat YOLO: {str(e)}", exc_info=True)
         st.error(f"YOLO load ERROR: {str(e)}")
 
+    # Memuat Keras model
     try:
-        st.write("Mencoba memuat model Keras dari: model/Az'zahra Salsabil Lubis_laporan 2.h5")
-        classifier = tf.keras.models.load_model("model/Az'zahra Salsabil Lubis_laporan 2.h5")
-        logger.info("Model Keras berhasil dimuat")
+        model_path_keras = "model/Az'zahra Salsabil Lubis_laporan 2.h5"
+        st.write(f"Mencoba memuat model Keras dari: {model_path_keras}")
+        classifier = tf.keras.models.load_model(model_path_keras)
+        logger.info(f"Model Keras berhasil dimuat dari {model_path_keras}")
+        st.write("Keras model berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model Keras: {str(e)}", exc_info=True)
         st.error(f"Keras load ERROR: {str(e)}")
