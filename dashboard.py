@@ -37,7 +37,7 @@ def load_models_safe():
 
     # Memuat Keras model
     try:
-        model_path_keras = "model/Az'zahra Salsabil Lubis_laporan 2.h5"
+        model_path_keras = "model/Azzahra_Salsabil_Lubis_laporan 2.h5"
         st.write(f"Mencoba memuat model Keras dari: {model_path_keras}")
         classifier = tf.keras.models.load_model(model_path_keras)
         logger.info(f"Model Keras berhasil dimuat dari {model_path_keras}")
