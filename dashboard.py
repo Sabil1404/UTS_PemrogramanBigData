@@ -28,8 +28,8 @@ def load_models_safe():
         st.error("YOLO load ERROR (lihat logs).")
 
     try:
-        print("Trying to load Keras model from: model/Azzahra_Salsabil_Lubis_Laporan2.h5")
-        classifier = tf.keras.models.load_model("model/Azzahra_Salsabil_Lubis_Laporan2.h5")
+        print("Trying to load Keras model from: model/Az'zahra Salsabil Lubis_laporan 2.h5")
+        classifier = tf.keras.models.load_model("model/Az'zahra Salsabil Lubis_laporan 2.h5")
         print("Keras model loaded OK")
     except Exception as e:
         classifier = None
