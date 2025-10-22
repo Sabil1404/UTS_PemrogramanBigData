@@ -24,29 +24,23 @@ def load_models_safe():
     yolo_model = None
     classifier = None
 
-    # Memuat YOLO model
     try:
-        model_path_yolo = "model/Azzahra Salsabil Lubis_Laporan 4.pt"
+        model_path_yolo = "model/Azzahra_Salsabil_Lubis_Laporan4.pt"
         st.write(f"Mencoba memuat model YOLO dari: {model_path_yolo}")
         yolo_model = YOLO(model_path_yolo)
-        logger.info(f"YOLO model berhasil dimuat dari {model_path_yolo}")
-        st.write("YOLO model berhasil dimuat")
+        st.success("✅ YOLO model berhasil dimuat")
     except Exception as e:
-        logger.error(f"Error saat memuat YOLO: {str(e)}", exc_info=True)
-        st.error(f"YOLO load ERROR: {str(e)}")
+        st.error(f"❌ YOLO load ERROR: {e}")
 
-    # Memuat Keras model
     try:
-        model_path_keras = "model/Azzahra_Salsabil_Lubis_Laporan 2.h5"
+        model_path_keras = "model/Azzahra_Salsabil_Lubis_Laporan2.h5"
         st.write(f"Mencoba memuat model Keras dari: {model_path_keras}")
         classifier = tf.keras.models.load_model(model_path_keras)
-        logger.info(f"Model Keras berhasil dimuat dari {model_path_keras}")
-        st.write("Keras model berhasil dimuat")
+        st.success("✅ Keras model berhasil dimuat")
     except Exception as e:
-        logger.error(f"Error saat memuat model Keras: {str(e)}", exc_info=True)
-        st.error(f"Keras load ERROR: {str(e)}")
+        st.error(f"❌ Keras load ERROR: {e}")
 
-    return yolo_model, classifier
+    return yolo_model, classifier
 
 # =================================
 # Cek apakah file model ada di direktori
