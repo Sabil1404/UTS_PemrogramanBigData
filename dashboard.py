@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def load_models():
     logger.debug("Mencoba memuat model YOLO...")
     try:
-        yolo_model = YOLO("model/Azzahra_Salsabil_Lubis_Laporan4.pt")
+        yolo_model = YOLO("model/deteksi.pt")
         logger.debug("YOLO model berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model YOLO: {e}")
@@ -26,7 +26,7 @@ def load_models():
 
     logger.debug("Mencoba memuat model Keras...")
     try:
-        classifier = tf.keras.models.load_model("model/Azzahra_Salsabil_Lubis_Laporan2.h5")
+        classifier = tf.keras.models.load_model("model/klasifikasi.h5")
         logger.debug("Model Keras berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model Keras: {e}")
@@ -70,3 +70,4 @@ if uploaded_file is not None:
         class_index = np.argmax(prediction)
         st.write("### Hasil Prediksi:", class_index)
         st.write("Probabilitas:", np.max(prediction))
+
