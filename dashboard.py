@@ -124,4 +124,17 @@ if uploaded_file is not None:
                 class_index = np.argmax(prediction)
 
                 # Define class labels
-                class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'C]()_
+                class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower', 
+                                'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
+                
+                class_name = class_labels[class_index]  # Get class name from index
+                st.write("### Prediction Result:", class_name)
+                st.write("Prediction Probability: {:.2f}%".format(np.max(prediction) * 100))
+            except Exception as e:
+                st.error(f"Error while classifying image: {e}")
+
+# Footer with information
+st.markdown(""" 
+    --- 
+    If you need any help or want more information, visit the [Documentation](#). 
+""")
