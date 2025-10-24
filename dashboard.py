@@ -39,35 +39,54 @@ yolo_model, classifier = load_models()
 # ==========================
 # UI
 # ==========================
-st.title("🧠 Image Classification & Object Detection App")
+# Judul aplikasi dan deskripsi
+st.title("🌟 Aplikasi Deteksi Objek & Klasifikasi Gambar")
+st.markdown("""
+    Aplikasi ini memungkinkan Anda untuk mengunggah gambar dan melakukan deteksi objek menggunakan YOLO 
+    atau klasifikasi gambar dengan model yang sudah terlatih. Silakan pilih mode yang Anda inginkan dari menu samping.
+""")
 
-menu = st.sidebar.selectbox("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+# Sidebar untuk memilih mode
+mode = st.sidebar.selectbox("Pilih Mode Deteksi & Klasifikasi", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
-uploaded_file = st.file_uploader("Unggah Gambar", type=["jpg", "jpeg", "png"])
+# Upload gambar
+uploaded_file = st.file_uploader("📸 Unggah Gambar Anda", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
+    # Menampilkan gambar yang diupload
     img = Image.open(uploaded_file)
     st.image(img, caption="Gambar yang Diupload", use_container_width=True)
 
     # Mengonversi gambar menjadi numpy array untuk YOLO
     img_array = np.array(img)
 
-    if menu == "Deteksi Objek (YOLO)":
+    # Deteksi Objek menggunakan YOLO
+    if mode == "Deteksi Objek (YOLO)":
+        st.subheader("🔍 Hasil Deteksi Objek")
         # Deteksi objek
         results = yolo_model(img_array)  # Menggunakan numpy array untuk YOLO
-        result_img = results[0].plot()  # hasil deteksi (gambar dengan box)
-        st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
+        result_img = results[0].plot()  # Hasil deteksi objek (gambar dengan box)
+        st.image(result_img, caption="Gambar dengan Deteksi", use_container_width=True)
 
-    elif menu == "Klasifikasi Gambar":
-        # Preprocessing
-        img_resized = img.resize((224, 224))  # sesuaikan ukuran dengan model kamu
+    # Klasifikasi Gambar
+    elif mode == "Klasifikasi Gambar":
+        st.subheader("🔬 Hasil Klasifikasi Gambar")
+        # Preprocessing gambar agar sesuai dengan model
+        img_resized = img.resize((224, 224))  # Sesuaikan ukuran gambar dengan input model
         img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
+        img_array = np.expand_dims(img_array, axis=0)  # Membuat batch size 1
+        img_array = img_array / 255.0  # Normalisasi gambar
 
-        # Prediksi
+        # Prediksi kelas gambar
         prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
-        st.write("### Hasil Prediksi:", class_index)
-        st.write("Probabilitas:", np.max(prediction))
+        class_index = np.argmax(prediction)  # Menentukan kelas dengan probabilitas tertinggi
 
+        # Menampilkan hasil prediksi dan probabilitas
+        st.write("### Kelas Prediksi:", class_index)
+        st.write("Probabilitas Prediksi: {:.2f}%".format(np.max(prediction) * 100))
+
+# Footer dengan informasi kontak atau dokumentasi
+st.markdown("""
+    ---
+    Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
+    """)
