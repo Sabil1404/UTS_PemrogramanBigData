@@ -70,14 +70,14 @@ if uploaded_file is not None:
     st.markdown('</div>', unsafe_allow_html=True)
 
    if menu == "Deteksi Objek (YOLO)":
-    st.subheader("🔍 Hasil Deteksi Objek")
-    try:
-        # Deteksi objek menggunakan YOLO
-        results = yolo_model(img)  # Menggunakan gambar yang diupload
-        result_img = results[0].plot(labels=True)  # Menambahkan label pada bounding box
-        st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
-
-        # Menampilkan informasi objek yang terdeteksi
+       st.subheader("🔍 Hasil Deteksi Objek")
+       try:
+           # Deteksi objek menggunakan YOLO
+           results = yolo_model(img)  # Menggunakan gambar yang diupload
+           result_img = results[0].plot(labels=True)  # Menambahkan label pada bounding box
+           st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
+           
+       # Menampilkan informasi objek yang terdeteksi
         if len(results[0].boxes.cls) > 0:  # Jika ada objek yang terdeteksi
             for i in range(len(results[0].boxes.cls)):
                 class_id = int(results[0].boxes.cls[i])  # Mendapatkan ID kelas
@@ -118,3 +118,4 @@ st.markdown("""
     --- 
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#). 
 """)
+
