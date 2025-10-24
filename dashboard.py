@@ -63,7 +63,7 @@ if uploaded_file is not None:
     img_array = np.array(img)
 
     # Deteksi Objek menggunakan YOLO
-    if mode == "Deteksi Objek (YOLO)":
+   if mode == "Deteksi Objek (YOLO)":
         st.subheader("🔍 Hasil Deteksi Objek")
         try:
             img_tensor = img_array / 255.0  # Normalisasi
@@ -76,18 +76,18 @@ if uploaded_file is not None:
             st.image(result_img, caption="Gambar dengan Deteksi", use_container_width=True)
 
             # Menampilkan informasi objek yang terdeteksi
-            if results[0].boxes.xywh.shape[0] > 0:  # Jika ada objek yang terdeteksi
+            if len(results[0].boxes.cls) > 0:  # Jika ada objek yang terdeteksi
                 for i in range(len(results[0].boxes.cls)):
                     class_id = int(results[0].boxes.cls[i])  # Mendapatkan ID kelas
                     class_name = results.names[class_id]  # Mendapatkan nama kelas
                     confidence = results[0].boxes.conf[i].item()  # Mendapatkan confidence
-                    if class_name in ['dog', 'chicken', 'butterfly']:  # Filter sesuai dengan deteksi yang kamu inginkan
+                    if class_name in ['Anjing', 'Ayam', 'Kupu-Kupu']:  # Filter sesuai dengan deteksi yang kamu inginkan
                         st.write(f"Objek Terdeteksi: {class_name.capitalize()} (Confidence: {confidence*100:.2f}%)")
             else:
                 st.write("Tidak ada objek yang terdeteksi.")
         except Exception as e:
             st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
-
+            
    # Klasifikasi Gambar
     elif mode == "Klasifikasi Gambar":
         st.subheader("🔬 Hasil Klasifikasi Gambar")
@@ -117,4 +117,5 @@ st.markdown("""
     --- 
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#). 
 """)
+
 
