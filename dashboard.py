@@ -62,16 +62,10 @@ if uploaded_file is not None:
     img_array = np.array(img)
 
     # Deteksi Objek menggunakan YOLO
-    if mode == "Deteksi Objek (YOLO)":
-        st.subheader("🔍 Hasil Deteksi Objek")
-        try:
-            # Mengonversi gambar menjadi format yang sesuai untuk YOLO
-            img_tensor = img_array / 255.0  # Normalisasi
-            results = yolo_model(img_tensor)  # Menggunakan tensor untuk YOLO
-            result_img = results[0].plot()  # Hasil deteksi objek (gambar dengan box)
-            st.image(result_img, caption="Gambar dengan Deteksi", use_container_width=True)
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
+    prediction = classifier.predict(img_array)
+    class_index = np.argmax(prediction)
+    st.write("### Hasil Prediksi:", class_index)
+    st.write("Probabilitas:", np.max(prediction))
 
 
     # Klasifikasi Gambar
@@ -103,6 +97,7 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
 
 
 
