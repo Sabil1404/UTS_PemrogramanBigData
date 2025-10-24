@@ -62,7 +62,7 @@ if uploaded_file is not None:
     img_array = np.array(img)
 
     # Deteksi Objek menggunakan YOLO
-if mode == "Deteksi Objek (YOLO)":
+    if mode == "Deteksi Objek (YOLO)":
         st.subheader("🔍 Hasil Deteksi Objek")
         try:
             # Mengonversi gambar menjadi format yang sesuai untuk YOLO
@@ -86,8 +86,6 @@ if mode == "Deteksi Objek (YOLO)":
                 st.write("Tidak ada objek yang terdeteksi.")
         except Exception as e:
             st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
-
-    # Klasifikasi Gambar
 
 
     # Klasifikasi Gambar
@@ -119,6 +117,7 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
 
 
 
