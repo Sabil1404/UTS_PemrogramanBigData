@@ -26,20 +26,23 @@ st.markdown("""
     <style>
         .title {
             text-align: center;
-            font-size: 36px;
+            font-size: 40px;
             color: #4CAF50;
             font-weight: bold;
+            padding: 20px;
         }
         .description {
             font-size: 18px;
             color: #555;
             text-align: center;
+            margin-bottom: 20px;
         }
         .upload-box {
             border: 2px solid #4CAF50;
             padding: 20px;
             border-radius: 10px;
             background-color: #f9f9f9;
+            margin-bottom: 20px;
         }
         .sidebar .sidebar-content {
             background-color: #f1f1f1;
@@ -49,11 +52,30 @@ st.markdown("""
         .stImage img {
             border-radius: 10px;
         }
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .stButton button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .stButton button:hover {
+            background-color: #45a049;
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # Header with title and description
-st.markdown('<div class="title">🧠 Image Classification & Object Detection App</div>', unsafe_allow_html=True)
+st.markdown('<div class="title">🧠 Aplikasi Deteksi & Klasifikasi Gambar</div>', unsafe_allow_html=True)
 st.markdown('<div class="description">Unggah gambar dan pilih mode untuk mendeteksi objek atau mengklasifikasikan gambar.</div>', unsafe_allow_html=True)
 
 # Sidebar for choosing mode
@@ -69,6 +91,15 @@ if uploaded_file is not None:
     st.image(img, caption="Gambar yang Diupload", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # Button Group for selecting mode
+    st.markdown('<div class="button-group">', unsafe_allow_html=True)
+    if st.button("Deteksi Objek (YOLO)"):
+        menu = "Deteksi Objek (YOLO)"
+    if st.button("Klasifikasi Gambar"):
+        menu = "Klasifikasi Gambar"
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Deteksi Objek (YOLO)
     if menu == "Deteksi Objek (YOLO)":
         st.subheader("🔍 Hasil Deteksi Objek")
         try:
@@ -76,7 +107,7 @@ if uploaded_file is not None:
             results = yolo_model(img)  # Menggunakan gambar yang diupload
             result_img = results[0].plot(labels=True)  # Menambahkan label pada bounding box
             st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
-            
+
             # Menampilkan informasi objek yang terdeteksi
             if len(results[0].boxes.cls) > 0:  # Jika ada objek yang terdeteksi
                 for i in range(len(results[0].boxes.cls)):
@@ -89,6 +120,7 @@ if uploaded_file is not None:
         except Exception as e:
             st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
 
+    # Klasifikasi Gambar
     elif menu == "Klasifikasi Gambar":
         st.subheader("🔬 Hasil Klasifikasi Gambar")
         with st.spinner("Sedang mengklasifikasikan gambar..."):
