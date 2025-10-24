@@ -5,7 +5,6 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 import logging
-import time
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 def load_models():
     logger.debug("Mencoba memuat model YOLO...")
     try:
-        yolo_model = YOLO("model/deteksi.pt")  # Pastikan path model YOLO benar
+        yolo_model = YOLO("deteksi.pt")  # Pastikan path model YOLO benar sesuai nama file
         logger.debug("YOLO model berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model YOLO: {e}")
@@ -26,7 +25,7 @@ def load_models():
 
     logger.debug("Mencoba memuat model Keras...")
     try:
-        classifier = tf.keras.models.load_model("model/klasifikasi.h5")  # Pastikan path model Keras benar
+        classifier = tf.keras.models.load_model("klasifikasi.h5")  # Pastikan path model Keras benar sesuai nama file
         logger.debug("Model Keras berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model Keras: {e}")
@@ -52,6 +51,9 @@ mode = st.sidebar.selectbox("Pilih Mode Deteksi & Klasifikasi", ["Deteksi Objek 
 # Upload gambar
 uploaded_file = st.file_uploader("📸 Unggah Gambar Anda", type=["jpg", "jpeg", "png"])
 
+# Membuat slider untuk menentukan threshold confidence
+confidence_threshold = st.slider("Atur Threshold Confidence", 0.0, 1.0, 0.5)
+
 if uploaded_file is not None:
     # Menampilkan gambar yang diupload
     img = Image.open(uploaded_file)
@@ -76,10 +78,11 @@ if uploaded_file is not None:
             # Menampilkan informasi objek yang terdeteksi
             if results[0].boxes.xywh.shape[0] > 0:  # Jika ada objek yang terdeteksi
                 for i in range(len(results[0].boxes.cls)):
-                    class_id = int(results[0].boxes.cls[i])  # Mendapatkan ID kelas
-                    class_name = results.names[class_id]  # Mendapatkan nama kelas
-                    confidence = results[0].boxes.conf[i].item()  # Mendapatkan confidence
-                    st.write(f"Objek Terdeteksi: {class_name} (Confidence: {confidence*100:.2f}%)")
+                    confidence = results[0].boxes.conf[i].item()
+                    if confidence >= confidence_threshold:  # Filter dengan threshold confidence
+                        class_id = int(results[0].boxes.cls[i])  # Mendapatkan ID kelas
+                        class_name = results.names[class_id]  # Mendapatkan nama kelas
+                        st.write(f"Objek Terdeteksi: {class_name} (Confidence: {confidence*100:.2f}%)")
             else:
                 st.write("Tidak ada objek yang terdeteksi.")
         except Exception as e:
@@ -114,4 +117,3 @@ st.markdown("""
     --- 
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#). 
 """)
-
