@@ -53,6 +53,7 @@ mode = st.sidebar.selectbox("Pilih Mode Deteksi & Klasifikasi", ["Deteksi Objek 
 uploaded_file = st.file_uploader("📸 Unggah Gambar Anda", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
+    
     # Menampilkan gambar yang diupload
     img = Image.open(uploaded_file)
     st.image(img, caption="Gambar yang Diupload", use_container_width=True)
@@ -61,28 +62,11 @@ if uploaded_file is not None:
     img_array = np.array(img)
 
     # Deteksi Objek menggunakan YOLO
-if mode == "Deteksi Objek (YOLO)":
-    st.subheader("🔍 Hasil Deteksi Objek")
-    try:
-        # Mengonversi gambar menjadi format yang sesuai untuk YOLO
-        img_tensor = img_array / 255.0  # Normalisasi
-        results = yolo_model(img_tensor)  # Menggunakan tensor untuk YOLO
-
-        # Daftar kelas yang digunakan oleh model (misalnya, COCO dataset)
-        class_names = ['person', 'bicycle', 'car', 'dog', 'cat', 'horse', ...]  # Gantilah sesuai kelas model kamu
-
-        # Mengambil kelas yang terdeteksi
-        detected_class = class_names[int(results[0].boxes.cls[0])]  # Ambil label kelas dari deteksi pertama
-
-        # Menampilkan nama kelas yang terdeteksi
-        st.write(f"Objek yang terdeteksi: {detected_class}")
-
-        # Menampilkan gambar dengan bounding box dan label
-        result_img = results[0].plot(labels=True)  # Menggambar bounding box dengan label
-        st.image(result_img, caption="Gambar dengan Deteksi", use_container_width=True)
-
-    except Exception as e:
-        st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
+       if menu == "Deteksi Objek (YOLO)":
+        # Deteksi objek
+        results = yolo_model(img)
+        result_img = results[0].plot()  # hasil deteksi (gambar dengan box)
+        st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
 
 
     # Klasifikasi Gambar
@@ -114,6 +98,7 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
 
 
 
