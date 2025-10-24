@@ -77,7 +77,7 @@ if uploaded_file is not None:
         st.subheader("🔬 Hasil Klasifikasi Gambar")
         try:
             # Preprocessing gambar agar sesuai dengan model klasifikasi
-            img_resized = img.resize((224, 224))  # Sesuaikan ukuran gambar dengan input model
+            img_resized = img.resize((128, 128))  # Sesuaikan ukuran gambar dengan input model
             img_array = image.img_to_array(img_resized)
             img_array = np.expand_dims(img_array, axis=0)  # Membuat batch size 1
             img_array = img_array / 255.0  # Normalisasi gambar
@@ -100,3 +100,4 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
