@@ -69,28 +69,26 @@ if uploaded_file is not None:
     st.image(img, caption="Gambar yang Diupload", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    if menu == "Deteksi Objek (YOLO)":
-        st.subheader("🔍 Hasil Deteksi Objek")
-        with st.spinner("Sedang mendeteksi objek..."):
-            try:
-                # Deteksi objek menggunakan YOLO
-                results = yolo_model(img)  # Menggunakan gambar yang diupload
+if menu == "Deteksi Objek (YOLO)":
+    st.subheader("🔍 Hasil Deteksi Objek")
+    try:
+        # Deteksi objek menggunakan YOLO
+        results = yolo_model(img)  # Menggunakan gambar yang diupload
+        result_img = results[0].plot(labels=True)  # Menambahkan label pada bounding box
+        st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
 
-                # Menampilkan gambar dengan bounding box dan label
-                result_img = results[0].plot(labels=True)  # Menambahkan label pada bounding box
-                st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
+        # Menampilkan informasi objek yang terdeteksi
+        if len(results[0].boxes.cls) > 0:  # Jika ada objek yang terdeteksi
+            for i in range(len(results[0].boxes.cls)):
+                class_id = int(results[0].boxes.cls[i])  # Mendapatkan ID kelas
+                class_name = results[0].names[class_id]  # Mendapatkan nama kelas dengan benar
+                confidence = results[0].boxes.conf[i].item()  # Mendapatkan confidence
+                st.write(f"Objek Terdeteksi: {class_name.capitalize()} (Confidence: {confidence*100:.2f}%)")
+        else:
+            st.write("Tidak ada objek yang terdeteksi.")
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
 
-                # Menampilkan informasi objek yang terdeteksi
-                if len(results[0].boxes.cls) > 0:  # Jika ada objek yang terdeteksi
-                    for i in range(len(results[0].boxes.cls)):
-                        class_id = int(results[0].boxes.cls[i])  # Mendapatkan ID kelas
-                        class_name = results.names[class_id]  # Mendapatkan nama kelas
-                        confidence = results[0].boxes.conf[i].item()  # Mendapatkan confidence
-                        st.write(f"Objek Terdeteksi: {class_name.capitalize()} (Confidence: {confidence*100:.2f}%)")
-                else:
-                    st.write("Tidak ada objek yang terdeteksi.")
-            except Exception as e:
-                st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
 
     elif menu == "Klasifikasi Gambar":
         st.subheader("🔬 Hasil Klasifikasi Gambar")
@@ -121,3 +119,4 @@ st.markdown("""
     --- 
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#). 
 """)
+
