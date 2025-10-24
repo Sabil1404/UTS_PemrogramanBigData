@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import logging
+import
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
@@ -90,3 +91,4 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
