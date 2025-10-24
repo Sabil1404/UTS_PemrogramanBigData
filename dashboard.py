@@ -4,7 +4,6 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
-import cv2
 import logging
 import time
 
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 def load_models():
     logger.debug("Mencoba memuat model YOLO...")
     try:
-        yolo_model = YOLO("model/deteksi.pt")
+        yolo_model = YOLO("model/deteksi.pt")  # Pastikan path model YOLO benar
         logger.debug("YOLO model berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model YOLO: {e}")
@@ -27,7 +26,7 @@ def load_models():
 
     logger.debug("Mencoba memuat model Keras...")
     try:
-        classifier = tf.keras.models.load_model("model/klasifikasi.h5")
+        classifier = tf.keras.models.load_model("model/klasifikasi.h5")  # Pastikan path model Keras benar
         logger.debug("Model Keras berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model Keras: {e}")
@@ -64,32 +63,40 @@ if uploaded_file is not None:
     # Deteksi Objek menggunakan YOLO
     if mode == "Deteksi Objek (YOLO)":
         st.subheader("🔍 Hasil Deteksi Objek")
-        # Deteksi objek
-        results = yolo_model(img_array)  # Menggunakan numpy array untuk YOLO
-        result_img = results[0].plot()  # Hasil deteksi objek (gambar dengan box)
-        st.image(result_img, caption="Gambar dengan Deteksi", use_container_width=True)
+        try:
+            # Mengonversi gambar menjadi format yang sesuai untuk YOLO
+            img_tensor = img_array / 255.0  # Normalisasi
+            results = yolo_model(img_tensor)  # Menggunakan tensor untuk YOLO
+            result_img = results[0].plot()  # Hasil deteksi objek (gambar dengan box)
+            st.image(result_img, caption="Gambar dengan Deteksi", use_container_width=True)
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
 
     # Klasifikasi Gambar
     elif mode == "Klasifikasi Gambar":
         st.subheader("🔬 Hasil Klasifikasi Gambar")
-        # Preprocessing gambar agar sesuai dengan model
-        img_resized = img.resize((224, 224))  # Sesuaikan ukuran gambar dengan input model
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)  # Membuat batch size 1
-        img_array = img_array / 255.0  # Normalisasi gambar
+        try:
+            # Preprocessing gambar agar sesuai dengan model klasifikasi
+            img_resized = img.resize((224, 224))  # Sesuaikan ukuran gambar dengan input model
+            img_array = image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0)  # Membuat batch size 1
+            img_array = img_array / 255.0  # Normalisasi gambar
 
-        # Prediksi kelas gambar
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)  # Menentukan kelas dengan probabilitas tertinggi
+            # Prediksi kelas gambar
+            prediction = classifier.predict(img_array)
+            class_index = np.argmax(prediction)  # Menentukan kelas dengan probabilitas tertinggi
 
-        # Menampilkan hasil prediksi dan probabilitas
-        st.write("### Kelas Prediksi:", class_index)
-        st.write("Probabilitas Prediksi: {:.2f}%".format(np.max(prediction) * 100))
+            # Menampilkan hasil prediksi dan probabilitas
+            class_labels = ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5']  # Gantilah sesuai dengan kelas model
+            class_name = class_labels[class_index]
+
+            st.write("### Kelas Prediksi:", class_name)
+            st.write("Probabilitas Prediksi: {:.2f}%".format(np.max(prediction) * 100))
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat mengklasifikasi gambar: {e}")
 
 # Footer dengan informasi kontak atau dokumentasi
 st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
-
-
