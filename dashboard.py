@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def load_models():
     logger.debug("Mencoba memuat model YOLO...")
     try:
-        yolo_model = YOLO("deteksi.pt")  # Pastikan path model YOLO benar sesuai nama file
+        yolo_model = YOLO("model/deteksi.pt")  # Pastikan path model YOLO benar sesuai nama file
         logger.debug("YOLO model berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model YOLO: {e}")
@@ -25,7 +25,7 @@ def load_models():
 
     logger.debug("Mencoba memuat model Keras...")
     try:
-        classifier = tf.keras.models.load_model("klasifikasi.h5")  # Pastikan path model Keras benar sesuai nama file
+        classifier = tf.keras.models.load_model("model/klasifikasi.h5")  # Pastikan path model Keras benar sesuai nama file
         logger.debug("Model Keras berhasil dimuat")
     except Exception as e:
         logger.error(f"Error saat memuat model Keras: {e}")
@@ -117,3 +117,4 @@ st.markdown("""
     --- 
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#). 
 """)
+
