@@ -51,4 +51,90 @@ st.markdown("""
             padding: 20px;
             border-radius: 10px;
             background-color: #f9f9f9;
-            box-s
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar .sidebar-content {
+            background-color: #f1f1f1;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .stImage img {
+            border-radius: 15px;
+        }
+        .sidebar .sidebar-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF5733;
+        }
+        .sidebar .stSelectbox, .sidebar .stFileUploader {
+            margin-top: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Header with title and a welcome message
+st.markdown('<div class="title">🌟 Welcome to Intelligent Vision App!</div>', unsafe_allow_html=True)
+st.markdown('<div class="welcome-message">Start exploring image classification and object detection with advanced AI models. Choose your action below and upload your image!</div>', unsafe_allow_html=True)
+
+# Sidebar for choosing mode with custom links
+menu = st.sidebar.selectbox("Select Mode:", ["🔍 Object Detection (YOLO)", "📸 Image Classification"])
+
+# Upload image
+uploaded_file = st.file_uploader("📸 Upload your image", type=["jpg", "jpeg", "png"])
+
+# Display image in a neat box with border
+if uploaded_file is not None:
+    img = Image.open(uploaded_file)
+    st.markdown('<div class="upload-box">', unsafe_allow_html=True)
+    st.image(img, caption="Uploaded Image", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    if menu == "🔍 Object Detection (YOLO)":
+        st.subheader("🔍 Object Detection Results")
+        try:
+            # Perform object detection using YOLO
+            results = yolo_model(img)  # Using the uploaded image
+            result_img = results[0].plot(labels=True)  # Add labels on the bounding box
+            st.image(result_img, caption="Detection Results", use_container_width=True)
+            
+            # Display information about detected objects
+            if len(results[0].boxes.cls) > 0:  # If there are detected objects
+                for i in range(len(results[0].boxes.cls)):
+                    class_id = int(results[0].boxes.cls[i])  # Get class ID
+                    class_name = results[0].names[class_id]  # Get class name
+                    confidence = results[0].boxes.conf[i].item()  # Get confidence
+                    st.write(f"Detected Object: {class_name.capitalize()} (Confidence: {confidence*100:.2f}%)")
+            else:
+                st.write("No objects detected.")
+        except Exception as e:
+            st.error(f"Error while detecting objects with YOLO: {e}")
+
+    elif menu == "📸 Image Classification":
+        st.subheader("🔬 Image Classification Results")
+        with st.spinner("Classifying image..."):
+            try:
+                # Preprocessing
+                img_resized = img.resize((128, 128))  # Resize image according to the model's input size
+                img_array = image.img_to_array(img_resized)
+                img_array = np.expand_dims(img_array, axis=0)  # Create batch size of 1
+                img_array = img_array / 255.0
+
+                # Prediction
+                prediction = classifier.predict(img_array)
+                class_index = np.argmax(prediction)
+
+                # Define class labels
+                class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower', 
+                                'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
+                
+                class_name = class_labels[class_index]  # Get class name from index
+                st.write("### Prediction Result:", class_name)
+                st.write("Prediction Probability: {:.2f}%".format(np.max(prediction) * 100))
+            except Exception as e:
+                st.error(f"Error while classifying image: {e}")
+
+# Footer with information
+st.markdown(""" 
+    --- 
+    If you need any help or want more information, visit the [Documentation](#). 
+""")
