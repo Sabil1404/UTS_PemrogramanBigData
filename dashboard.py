@@ -63,9 +63,9 @@ if uploaded_file is not None:
 
    # Deteksi Objek menggunakan YOLO
     if mode == "Deteksi Objek (YOLO)":
-    st.subheader("🔍 Hasil Deteksi Objek")
-    try:
-        img_tensor = img_array / 255.0  # Normalisasi
+        st.subheader("🔍 Hasil Deteksi Objek")
+        try:
+            img_tensor = img_array / 255.0  # Normalisasi
 
         # YOLO melakukan deteksi objek
         results = yolo_model(img_tensor)  # Menggunakan tensor untuk YOLO
