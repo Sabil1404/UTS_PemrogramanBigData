@@ -27,11 +27,11 @@ st.markdown("""
     <style>
         .title {
             text-align: center;
-            font-size: 42px;
+            font-size: 50px;
             font-family: 'Arial', sans-serif;
-            color: #FF5733;  /* Orange color for excitement */
+            color: navy;  /* Navy color */
             font-weight: bold;
-            text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.5);
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);  /* Soft shadow effect */
         }
         .welcome-message {
             font-size: 22px;
@@ -73,7 +73,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header with title and a welcome message
-st.markdown('<div class="title">🌟 Welcome to Intelligent Vision App!</div>', unsafe_allow_html=True)
+st.markdown('<div class="title">✨ Welcome to Intelligent Vision!</div>', unsafe_allow_html=True)
 st.markdown('<div class="welcome-message">Start exploring image classification and object detection with advanced AI models. Choose your action below and upload your image!</div>', unsafe_allow_html=True)
 
 # Sidebar for choosing mode with custom links
@@ -124,17 +124,4 @@ if uploaded_file is not None:
                 class_index = np.argmax(prediction)
 
                 # Define class labels
-                class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower', 
-                                'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
-                
-                class_name = class_labels[class_index]  # Get class name from index
-                st.write("### Prediction Result:", class_name)
-                st.write("Prediction Probability: {:.2f}%".format(np.max(prediction) * 100))
-            except Exception as e:
-                st.error(f"Error while classifying image: {e}")
-
-# Footer with information
-st.markdown(""" 
-    --- 
-    If you need any help or want more information, visit the [Documentation](#). 
-""")
+                class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'C]()_
