@@ -87,35 +87,46 @@ if mode == "Deteksi Objek (YOLO)":
         st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
 
 
-    # Klasifikasi Gambar
-    elif mode == "Klasifikasi Gambar":
-        st.subheader("🔬 Hasil Klasifikasi Gambar")
-        try:
-            # Preprocessing gambar agar sesuai dengan model klasifikasi
-            img_resized = img.resize((128, 128))  # Sesuaikan ukuran gambar dengan input model
-            img_array = image.img_to_array(img_resized)
-            img_array = np.expand_dims(img_array, axis=0)  # Membuat batch size 1
-            img_array = img_array / 255.0  # Normalisasi gambar
+   # Klasifikasi Gambar
+elif mode == "Klasifikasi Gambar":
+    st.subheader("🔬 Hasil Klasifikasi Gambar")
+    try:
+        # Pastikan gambar dalam mode RGB
+        img = img.convert("RGB")
 
-            # Prediksi kelas gambar
-            prediction = classifier.predict(img_array)
-            class_index = np.argmax(prediction)  # Menentukan kelas dengan probabilitas tertinggi
+        # Preprocessing gambar agar sesuai dengan model klasifikasi
+        img_resized = img.resize((128, 128))  # Sesuaikan ukuran gambar dengan input model
+        img_array = image.img_to_array(img_resized)
+        img_array = np.expand_dims(img_array, axis=0)  # Membuat batch size 1
+        img_array = img_array / 255.0  # Normalisasi gambar
 
-            # Menampilkan hasil prediksi dan probabilitas
-            class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower', 'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 
-                            'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
-            class_name = class_labels[class_index]
+        # Prediksi kelas gambar
+        prediction = classifier.predict(img_array)
+        
+        # Cek bentuk output prediction untuk debug
+        st.write("Prediksi Keluaran:", prediction)
 
-            st.write("### Kelas Prediksi:", class_name)
-            st.write("Probabilitas Prediksi: {:.2f}%".format(np.max(prediction) * 100))
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat mengklasifikasi gambar: {e}")
+        class_index = np.argmax(prediction)  # Menentukan kelas dengan probabilitas tertinggi
+
+        # Menampilkan hasil prediksi dan probabilitas
+        class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower', 'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 
+                        'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
+        class_name = class_labels[class_index]
+
+        st.write("### Kelas Prediksi:", class_name)
+        st.write("Probabilitas Prediksi: {:.2f}%".format(np.max(prediction) * 100))
+
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat mengklasifikasi gambar: {e}")
+        logger.error(f"Error detail: {str(e)}")  # Log error untuk debug
+
 
 # Footer dengan informasi kontak atau dokumentasi
 st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
 
 
 
