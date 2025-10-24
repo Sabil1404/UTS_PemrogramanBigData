@@ -83,8 +83,8 @@ if uploaded_file is not None:
                 st.write(f"Objek Terdeteksi: {class_name} (Confidence: {confidence*100:.2f}%)")
         else:
             st.write("Tidak ada objek yang terdeteksi.")
-    except Exception as e:
-        st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
+except Exception as e:
+    st.error(f"Terjadi kesalahan saat mendeteksi objek dengan YOLO: {e}")
 
 
    # Klasifikasi Gambar
@@ -117,6 +117,7 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
 
 
 
