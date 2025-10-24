@@ -87,7 +87,8 @@ if uploaded_file is not None:
             class_index = np.argmax(prediction)  # Menentukan kelas dengan probabilitas tertinggi
 
             # Menampilkan hasil prediksi dan probabilitas
-            class_labels = ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5']  # Gantilah sesuai dengan kelas model
+            class_labels = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower', 'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 
+                            'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
             class_name = class_labels[class_index]
 
             st.write("### Kelas Prediksi:", class_name)
@@ -100,4 +101,5 @@ st.markdown("""
     ---
     Jika Anda memiliki pertanyaan atau butuh bantuan, kunjungi [Dokumentasi Aplikasi](#).
     """)
+
 
