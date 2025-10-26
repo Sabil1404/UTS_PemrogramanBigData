@@ -5,6 +5,7 @@ from tensorflow.keras.preprocessing import image as kimage
 import pandas as pd
 import datetime
 import plotly.express as px
+import os
 
 # ------------------------
 # Dummy predict (fallback)
@@ -102,34 +103,34 @@ if uploaded_file is not None:
                 else:
                     pred_class = "NoObject"
                     conf = 0.0
-                    bbox = (0,0,0,0)
+                    bbox = (0, 0, 0, 0)
                 # show annotated image if available
                 try:
                     result_img = results[0].plot(labels=True)
                     st.image(result_img, caption="Detection Results (annotated)", use_column_width=True)
                 except Exception:
                     pass
-            except Exception as e:
+            except Exception:
                 st.warning("Gagal memuat/menjalankan YOLO model — memakai dummy predict.")
                 pred_class, conf, bbox = dummy_predict(img)
         else:
             # Classification mode
             try:
                 clf = get_classifier()
-                img_resized = img.resize((128,128))
+                img_resized = img.resize((128, 128))
                 arr = kimage.img_to_array(img_resized)
                 arr = np.expand_dims(arr, axis=0) / 255.0
                 pred = clf.predict(arr)
                 idx = int(np.argmax(pred))
                 class_labels = [
-                    "Tomato","Radish","Pumpkin","Potato","Papaya","Cucumber",
-                    "Cauliflower","Carrot","Capsicum","Cabbage","Broccoli",
-                    "Brinjal","Bottle_Gourd","Bitter_Gourd","Bean"
+                    "Tomato", "Radish", "Pumpkin", "Potato", "Papaya", "Cucumber",
+                    "Cauliflower", "Carrot", "Capsicum", "Cabbage", "Broccoli",
+                    "Brinjal", "Bottle_Gourd", "Bitter_Gourd", "Bean"
                 ]
                 pred_class = class_labels[idx] if 0 <= idx < len(class_labels) else f"Class_{idx}"
                 conf = float(np.max(pred))
-                bbox = (0,0,0,0)
-            except Exception as e:
+                bbox = (0, 0, 0, 0)
+            except Exception:
                 st.warning("Gagal memuat/menjalankan classifier — memakai dummy predict.")
                 pred_class, conf, bbox = dummy_predict(img)
     else:
@@ -143,61 +144,4 @@ if uploaded_file is not None:
     # ------------------------
     record = {
         "filename": getattr(uploaded_file, "name", f"img_{len(st.session_state['records'])+1}.jpg"),
-        "uploaded_at": datetime.datetime.now().isoformat(timespec='seconds'),
-        "pred_class": pred_class,
-        "confidence": round(float(conf), 4),
-        "xmin": int(bbox[0]) if bbox[0] is not None else None,
-        "ymin": int(bbox[1]) if bbox[1] is not None else None,
-        "xmax": int(bbox[2]) if bbox[2] is not None else None,
-        "ymax": int(bbox[3]) if bbox[3] is not None else None
-    }
-    st.session_state["records"].append(record)
-    st.success("Metadata gambar disimpan (session only).")
-
-    if persist_csv:
-        try:
-            df_temp = pd.DataFrame(st.session_state["records"])
-            # create folder if necessary
-            import os
-            os.makedirs(os.path.dirname(csv_path) or ".", exist_ok=True)
-            df_temp.to_csv(csv_path, index=False)
-            st.info(f"Data juga disimpan ke `{csv_path}`")
-        except Exception as e:
-            st.error(f"Gagal simpan CSV: {e}")
-
-# ------------------------
-# If we have records -> show table + treemap
-# ------------------------
-if len(st.session_state["records"]) > 0:
-    df = pd.DataFrame(st.session_state["records"])
-    st.subheader("Ringkasan data (preview terakhir)")
-    st.dataframe(df.tail(10))
-
-    # Aggregate: count & avg confidence per class
-    agg = (
-        df.groupby("pred_class")
-        .agg(count=("filename", "count"), avg_confidence=("confidence","mean"))
-        .reset_index()
-    )
-
-    # Build treemap
-    fig = px.treemap(
-        agg,
-        path=["pred_class"],
-        values="count",
-        color="avg_confidence",
-        color_continuous_scale="RdYlGn",
-        color_continuous_midpoint=agg["avg_confidence"].mean(),
-        hover_data={"count": True, "avg_confidence": True}
-    )
-    fig.update_layout(margin=dict(t=30,l=10,r=10,b=10), title="Treemap: Distribusi kelas (size=count, color=avg confidence)")
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("Belum ada gambar diupload — upload satu gambar untuk mulai mengumpulkan metadata.")
-
-# ------------------------
-# Footer
-# ------------------------
-st.markdown("---")
-st.markdown("Catatan: jika ingin deploy, gunakan lazy-load model agar UI tidak lama saat startup. Pilih mode 'Demo' untuk uji coba tanpa model.")
-
+        "uploaded_at": datetime.datetime.now(_
