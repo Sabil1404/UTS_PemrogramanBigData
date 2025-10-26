@@ -33,7 +33,7 @@ def get_classifier():
 # ------------------------
 # App config & styling
 # ------------------------
-st.set_page_config(page_title="👀 SeeBil", page_icon="👀", layout="wide")
+st.set_page_config(page_title="SeeBil", page_icon="👀", layout="wide")
 st.markdown("""
     <style>
         .title {
@@ -197,4 +197,5 @@ else:
 # ------------------------
 st.markdown("---")
 st.caption("👀 SeeBil — A smart glance, powered by your vision ✨")
+
 
