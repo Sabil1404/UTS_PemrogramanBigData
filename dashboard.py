@@ -178,7 +178,6 @@ if uploaded_csv:
                 df_plot = df.sample(5000, random_state=42)
             else:
                 df_plot = df
-
             try:
                 fig = px.scatter(df_plot, x=x, y=y,
                                  color=(color if color else None),
@@ -192,4 +191,5 @@ if uploaded_csv:
 # Footer
 st.markdown("---")
 st.markdown("Butuh opsi lain nanti? Bilang aja — tapi ini satu visual dulu sesuai permintaan.")
+
 
