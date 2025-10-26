@@ -11,7 +11,7 @@ import os
 # Dummy predict (fallback)
 # ------------------------
 def dummy_predict(img: Image.Image):
-    classes = ["Anjing", "Kucing", "Kupu-Kupu"]
+    classes = ["Anjing", "Ayam", "Kupu-Kupu"]
     idx = np.random.randint(0, len(classes))
     conf = float(np.round(np.random.uniform(0.5, 0.98), 3))
     bbox = (10, 10, img.width - 10, img.height - 10)
@@ -53,6 +53,11 @@ st.markdown('<div class="subtitle">Upload gambar satu-per-satu — simpan metada
 mode = st.sidebar.selectbox("Mode:", ["🔍 Object Detection (YOLO)", "📸 Image Classification", "⚙️ Demo (No model)"])
 persist_csv = st.sidebar.checkbox("Simpan ke CSV setiap upload", value=False)
 csv_path = st.sidebar.text_input("Path CSV (jika centang Simpan)", value="data/records.csv")
+
+# Tombol hapus data session
+if st.sidebar.button("🗑️ Hapus Semua Record"):
+    st.session_state["records"] = []
+    st.sidebar.success("Semua record dihapus dari session.")
 
 # ------------------------
 # Session storage init
@@ -102,46 +107,3 @@ if uploaded_file is not None:
                     bbox = (int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3]))
                 else:
                     pred_class = "NoObject"
-                    conf = 0.0
-                    bbox = (0, 0, 0, 0)
-                # show annotated image if available
-                try:
-                    result_img = results[0].plot(labels=True)
-                    st.image(result_img, caption="Detection Results (annotated)", use_column_width=True)
-                except Exception:
-                    pass
-            except Exception:
-                st.warning("Gagal memuat/menjalankan YOLO model — memakai dummy predict.")
-                pred_class, conf, bbox = dummy_predict(img)
-        else:
-            # Classification mode
-            try:
-                clf = get_classifier()
-                img_resized = img.resize((128, 128))
-                arr = kimage.img_to_array(img_resized)
-                arr = np.expand_dims(arr, axis=0) / 255.0
-                pred = clf.predict(arr)
-                idx = int(np.argmax(pred))
-                class_labels = [
-                    "Tomato", "Radish", "Pumpkin", "Potato", "Papaya", "Cucumber",
-                    "Cauliflower", "Carrot", "Capsicum", "Cabbage", "Broccoli",
-                    "Brinjal", "Bottle_Gourd", "Bitter_Gourd", "Bean"
-                ]
-                pred_class = class_labels[idx] if 0 <= idx < len(class_labels) else f"Class_{idx}"
-                conf = float(np.max(pred))
-                bbox = (0, 0, 0, 0)
-            except Exception:
-                st.warning("Gagal memuat/menjalankan classifier — memakai dummy predict.")
-                pred_class, conf, bbox = dummy_predict(img)
-    else:
-        pred_class, conf, bbox = dummy_predict(img)
-
-    # Display result summary
-    st.markdown(f"**Prediksi:** `{pred_class}` — Confidence: **{conf*100:.1f}%**")
-
-    # ------------------------
-    # Save record to session (and optionally CSV)
-    # ------------------------
-    record = {
-        "filename": getattr(uploaded_file, "name", f"img_{len(st.session_state['records'])+1}.jpg"),
-        "uploaded_at": datetime.datetime.now(_
