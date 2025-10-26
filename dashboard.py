@@ -186,7 +186,7 @@ if len(st.session_state["records"]) > 0:
     )
     fig.update_layout(
         margin=dict(t=30, l=10, r=10, b=10),
-        title="Treemap (Ukuran = jumlah gambar)"
+        title="Treemap, ukuran Data 📊"
     )
     st.plotly_chart(fig, use_container_width=True)
 else:
@@ -197,3 +197,4 @@ else:
 # ------------------------
 st.markdown("---")
 st.caption("👀 SeeBil — A smart glance, powered by your vision ✨")
+
