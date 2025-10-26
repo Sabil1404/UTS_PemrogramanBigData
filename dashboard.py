@@ -1,141 +1,72 @@
 import streamlit as st
-from ultralytics import YOLO
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-import numpy as np
-from PIL import Image
 import pandas as pd
 import plotly.express as px
+from PIL import Image
+import numpy as np
+import datetime
 
-# ==========================
-# Load Models
-# ==========================
-@st.cache_resource
-def load_models():
-    yolo_model = YOLO("model/deteksi.pt")  # Model deteksi objek
-    classifier = tf.keras.models.load_model("model/klasifikasi.h5")  # Model klasifikasi
-    return yolo_model, classifier
+# --- contoh fungsi dummy predict (ganti pakai modelmu) ---
+def dummy_predict(img: Image.Image):
+    # return (class_name, confidence, bbox)
+    # untuk demo: acak kelas
+    classes = ["Anjing", "Kucing", "Burung"]
+    idx = np.random.randint(0, len(classes))
+    conf = float(np.round(np.random.uniform(0.5, 0.98), 3))
+    bbox = (10, 10, img.width-10, img.height-10)
+    return classes[idx], conf, bbox
 
-yolo_model, classifier = load_models()
+# Inisialisasi storage sementara
+if "records" not in st.session_state:
+    st.session_state["records"] = []  # list of dicts
 
-# ==========================
-# UI
-# ==========================
-st.set_page_config(page_title="✨ Intelligent Vision", page_icon="🔍", layout="wide")
+st.title("Upload gambar — simpan metadata & lihat Treemap kelas")
 
-# Custom CSS
-st.markdown("""
-    <style>
-        .title { text-align: center; font-size: 42px; color: navy; font-weight: bold; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 20px; }
-        .upload-box { border: 2px solid #FF5733; padding: 12px; border-radius: 10px; background-color: #f9f9f9; }
-    </style>
-""", unsafe_allow_html=True)
+uploaded_file = st.file_uploader("Upload gambar (satu-satu)", type=["jpg","jpeg","png"])
+if uploaded_file is not None:
+    img = Image.open(uploaded_file).convert("RGB")
+    st.image(img, caption="Uploaded Image", use_column_width=True)
 
-st.markdown('<div class="title">✨ Intelligent Vision</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Image tools + satu visualisasi interaktif (Scatter)</div>', unsafe_allow_html=True)
+    # Panggil model di sini (gunakan lazy loading pada app utama)
+    # Contoh: pred_class, conf, bbox = yolo_model_predict(img)
+    pred_class, conf, bbox = dummy_predict(img)
 
-# Sidebar
-menu = st.sidebar.selectbox("Select Mode:", ["🔍 Object Detection (YOLO)", "📸 Image Classification", "📊 Visualisasi: Scatter"])
+    st.markdown(f"**Prediksi:** `{pred_class}`  — Confidence: **{conf*100:.1f}%**")
 
-# ==========================
-# MODE 1 & 2: IMAGE PANEL
-# ==========================
-if menu in ["🔍 Object Detection (YOLO)", "📸 Image Classification"]:
-    uploaded_file = st.file_uploader("📸 Upload your image", type=["jpg", "jpeg", "png"])
+    # Simpan record
+    record = {
+        "filename": getattr(uploaded_file, "name", f"img_{len(st.session_state['records'])+1}.jpg"),
+        "uploaded_at": datetime.datetime.now().isoformat(timespec='seconds'),
+        "pred_class": pred_class,
+        "confidence": conf,
+        "xmin": bbox[0], "ymin": bbox[1], "xmax": bbox[2], "ymax": bbox[3]
+    }
+    st.session_state["records"].append(record)
+    st.success("Metadata gambar disimpan (session only).")
 
-    if uploaded_file is not None:
-        img = Image.open(uploaded_file)
-        st.markdown('<div class="upload-box">', unsafe_allow_html=True)
-        st.image(img, caption="Uploaded Image", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+# Jika ada data, buat DataFrame agregat untuk treemap
+if len(st.session_state["records"]) > 0:
+    df = pd.DataFrame(st.session_state["records"])
+    st.subheader("Ringkasan data (preview)")
+    st.dataframe(df.tail(10))
 
-        if menu == "🔍 Object Detection (YOLO)":
-            st.subheader("🔍 Object Detection Results")
-            try:
-                results = yolo_model(img)
-                result_img = results[0].plot(labels=True)
-                st.image(result_img, caption="Detection Results", use_container_width=True)
+    # Buat agregasi: count per kelas & rata2 confidence
+    agg = df.groupby("pred_class").agg(
+        count=("filename","count"),
+        avg_confidence=("confidence","mean")
+    ).reset_index()
 
-                if len(results[0].boxes.cls) > 0:
-                    for i in range(len(results[0].boxes.cls)):
-                        class_id = int(results[0].boxes.cls[i])
-                        class_name = results[0].names[class_id]
-                        confidence = results[0].boxes.conf[i].item()
-                        st.write(f"Detected Object: {class_name.capitalize()} (Confidence: {confidence*100:.2f}%)")
-                else:
-                    st.write("No objects detected.")
-            except Exception as e:
-                st.error(f"Error while detecting objects with YOLO: {e}")
-
-        elif menu == "📸 Image Classification":
-            st.subheader("🔬 Image Classification Results")
-            try:
-                img_resized = img.resize((128, 128))
-                img_array = image.img_to_array(img_resized)
-                img_array = np.expand_dims(img_array, axis=0)
-                img_array = img_array / 255.0
-
-                prediction = classifier.predict(img_array)
-                class_index = np.argmax(prediction)
-
-                class_labels = [
-                    'Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower',
-                    'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean'
-                ]
-
-                class_name = class_labels[class_index]
-                st.write("### Prediction Result:", class_name)
-                st.write("Prediction Probability: {:.2f}%".format(np.max(prediction) * 100))
-            except Exception as e:
-                st.error(f"Error while classifying image: {e}")
-
-# ==========================
-# MODE 3: VISUALISASI SCATTER
-# ==========================
-elif menu == "📊 Visualisasi: Scatter":
-    st.header("📊 Scatter Plot (satu saja)")
-    st.write("Upload CSV (opsional). Kalau tidak, contoh dataset Iris akan dipakai.")
-
-    uploaded_csv = st.file_uploader("Upload CSV untuk divisualisasi (opsional)", type=["csv"], key="csv_scatter")
-
-    if uploaded_csv:
-        try:
-            df = pd.read_csv(uploaded_csv)
-        except Exception as e:
-            st.error(f"Gagal membaca CSV: {e}")
-            df = pd.DataFrame()
-    else:
-        df = px.data.iris()
-
-    if df.empty:
-        st.warning("Data kosong — upload CSV yang valid.")
-    else:
-        st.write("Preview data:", df.head())
-
-        numeric_cols = df.select_dtypes(include='number').columns.tolist()
-        if len(numeric_cols) < 2:
-            st.error("Butuh minimal 2 kolom numerik untuk scatter plot.")
-        else:
-            x = st.selectbox("Pilih sumbu X", numeric_cols, index=0)
-            y = st.selectbox("Pilih sumbu Y", numeric_cols, index=1)
-            color = st.selectbox("Warna (opsional)", [None] + df.columns.tolist())
-            size_col = st.selectbox("Ukuran titik (opsional)", [None] + numeric_cols)
-
-            df_plot = df.sample(5000, random_state=42) if len(df) > 5000 else df
-
-            try:
-                fig = px.scatter(df_plot, x=x, y=y,
-                                 color=(color if color else None),
-                                 size=(size_col if size_col else None),
-                                 hover_data=df_plot.columns)
-                fig.update_layout(title=f"Scatter: {x} vs {y}", legend_title_text=(color if color else ""))
-                st.plotly_chart(fig, use_container_width=True)
-            except Exception as e:
-                st.error(f"Gagal membuat scatter plot: {e}")
-
-# ==========================
-# FOOTER
-# ==========================
-st.markdown("---")
-st.markdown("Butuh opsi lain nanti? Bilang aja — tapi ini satu visual dulu sesuai permintaan.")
+    # Treemap: path by pred_class, size=count, color=avg_confidence
+    fig = px.treemap(
+        agg,
+        path=["pred_class"],
+        values="count",
+        color="avg_confidence",
+        color_continuous_scale="RdYlGn",
+        color_continuous_midpoint=agg["avg_confidence"].mean(),
+        hover_data={"count":True, "avg_confidence":True}
+    )
+    fig.update_layout(margin=dict(t=30, l=10, r=10, b=10))
+    st.subheader("Treemap: Distribusi kelas (size=count, color=avg confidence)")
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("Belum ada gambar diupload — upload satu gambar untuk mulai mengumpulkan metadata.")
