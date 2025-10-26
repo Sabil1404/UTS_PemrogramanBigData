@@ -8,6 +8,31 @@ import plotly.express as px
 import os
 
 # ------------------------
+# Helper: show image with max width
+# ------------------------
+def show_image_limited(img_obj, caption=None, max_width=400):
+    """
+    Display PIL Image or numpy image with width limited to max_width.
+    If img_obj is numpy array, convert to PIL first.
+    """
+    try:
+        if isinstance(img_obj, np.ndarray):
+            # numpy image: shape (H, W, C)
+            h, w = img_obj.shape[:2]
+            display_w = min(w, max_width)
+            st.image(img_obj, caption=caption, width=display_w)
+        elif isinstance(img_obj, Image.Image):
+            w = img_obj.width
+            display_w = min(w, max_width)
+            st.image(img_obj, caption=caption, width=display_w)
+        else:
+            # fallback: let streamlit decide
+            st.image(img_obj, caption=caption)
+    except Exception:
+        # safest fallback
+        st.image(img_obj, caption=caption)
+
+# ------------------------
 # Dummy predict (fallback)
 # ------------------------
 def dummy_predict(img: Image.Image):
@@ -39,8 +64,8 @@ st.set_page_config(page_title="✨ Intelligent Vision", page_icon="🔍", layout
 st.markdown("""
     <style>
         .title { text-align:center; font-size:48px; color:navy; font-weight:700; margin-bottom:6px; }
-        .subtitle { text-align:center; color:#666; margin-bottom:24px; }
-        .upload-box { border:2px solid #FF5733; padding:16px; border-radius:10px; background:#fbfbfb; }
+        .subtitle { text-align:center; color:#666; margin-bottom:16px; }
+        .upload-box { border:2px solid #FF5733; padding:12px; border-radius:10px; background:#fbfbfb; }
         .small-muted { color:#777; font-size:13px; }
     </style>
 """, unsafe_allow_html=True)
@@ -53,6 +78,7 @@ st.markdown('<div class="subtitle">Upload gambar satu-per-satu — simpan metada
 mode = st.sidebar.selectbox("Mode:", ["🔍 Object Detection (YOLO)", "📸 Image Classification", "⚙️ Demo (No model)"])
 persist_csv = st.sidebar.checkbox("Simpan ke CSV setiap upload", value=False)
 csv_path = st.sidebar.text_input("Path CSV (jika centang Simpan)", value="data/records.csv")
+max_display_width = st.sidebar.number_input("Max width gambar (px)", min_value=100, max_value=1200, value=400, step=50)
 
 # Tombol hapus data session
 if st.sidebar.button("🗑️ Hapus Semua Record"):
@@ -77,7 +103,8 @@ if uploaded_file is not None:
         st.stop()
 
     st.markdown('<div class="upload-box">', unsafe_allow_html=True)
-    st.image(img, caption="Uploaded Image", use_container_width=True)
+    # use helper to limit displayed width
+    show_image_limited(img, caption="Uploaded Image", max_width=int(max_display_width))
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ------------------------
@@ -109,10 +136,10 @@ if uploaded_file is not None:
                     pred_class = "NoObject"
                     conf = 0.0
                     bbox = (0, 0, 0, 0)
-                # show annotated image if available
+                # show annotated image if available (use helper to limit width)
                 try:
                     result_img = results[0].plot(labels=True)
-                    st.image(result_img, caption="Detection Results (annotated)", use_container_width=True)
+                    show_image_limited(result_img, caption="Detection Results (annotated)", max_width=int(max_display_width))
                 except Exception:
                     pass
             except Exception:
