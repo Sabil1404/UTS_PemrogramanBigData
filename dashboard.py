@@ -66,7 +66,7 @@ st.markdown("""
 # Header Section
 # ------------------------
 st.markdown('<div class="title">👀 SeeBil</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">"See closer, understand deeper — intelligence through your vision.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">"See closer, understand deeper — intelligence through your vision."</div>', unsafe_allow_html=True)
 
 # ------------------------
 # Sidebar: mode & controls
@@ -163,6 +163,21 @@ if uploaded_file is not None:
             st.error(f"Gagal simpan CSV: {e}")
 
 # ------------------------
+# Tombol Download CSV
+# ------------------------
+if len(st.session_state["records"]) > 0:
+    df_temp = pd.DataFrame(st.session_state["records"])
+    csv_data = df_temp.to_csv(index=False).encode('utf-8')
+    
+    st.download_button(
+        label="⬇️ Unduh CSV",
+        data=csv_data,
+        file_name="records.csv",
+        mime="text/csv",
+        help="Klik untuk mengunduh metadata gambar"
+    )
+
+# ------------------------
 # Treemap Visualization
 # ------------------------
 if len(st.session_state["records"]) > 0:
@@ -195,10 +210,3 @@ else:
 # ------------------------
 st.markdown("---")
 st.caption("👀 SeeBil — A smart glance, powered by your vision ✨")
-
-
-
-
-
-
-
