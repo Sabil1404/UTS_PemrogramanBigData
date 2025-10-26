@@ -4,6 +4,8 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # ==========================
 # Load Models
@@ -138,3 +140,55 @@ st.markdown("""
     --- 
     If you need any help or want more information, visit the [Documentation](#). 
 """)
+
+# SINGLE VISUAL: SCATTER
+# --------------------------
+elif menu == "📊 Visualisasi: Scatter":
+    st.header("📊 Scatter Plot (satu saja)")
+    st.write("Upload CSV (opsional). Kalau tidak, contoh dataset Iris akan dipakai.")
+
+    uploaded_csv = st.file_uploader("Upload CSV untuk divisualisasi (opsional)", type=["csv"], key="csv_scatter")
+    if uploaded_csv:
+        try:
+            df = pd.read_csv(uploaded_csv)
+        except Exception as e:
+            st.error(f"Gagal membaca CSV: {e}")
+            df = pd.DataFrame()
+    else:
+        df = px.data.iris()
+
+    if df.empty:
+        st.warning("Data kosong — upload CSV yang valid.")
+    else:
+        st.write("Preview data:", df.head())
+
+        # Pilihan kolom numeric untuk sumbu
+        numeric_cols = df.select_dtypes(include='number').columns.tolist()
+        if len(numeric_cols) < 2:
+            st.error("Butuh minimal 2 kolom numerik untuk scatter plot.")
+        else:
+            x = st.selectbox("Pilih sumbu X", numeric_cols, index=0)
+            y = st.selectbox("Pilih sumbu Y", numeric_cols, index=1)
+            color = st.selectbox("Warna (opsional)", [None] + df.columns.tolist())
+            size_col = st.selectbox("Ukuran titik (opsional)", [None] + numeric_cols)
+
+            # Optional sampling jika dataset sangat besar
+            if len(df) > 5000:
+                st.info("Dataset besar — men-sample 5000 baris untuk menjaga responsif.")
+                df_plot = df.sample(5000, random_state=42)
+            else:
+                df_plot = df
+
+            try:
+                fig = px.scatter(df_plot, x=x, y=y,
+                                 color=(color if color else None),
+                                 size=(size_col if size_col else None),
+                                 hover_data=df_plot.columns)
+                fig.update_layout(title=f"Scatter: {x} vs {y}", legend_title_text=(color if color else ""))
+                st.plotly_chart(fig, use_container_width=True)
+            except Exception as e:
+                st.error(f"Gagal membuat scatter plot: {e}")
+
+# Footer
+st.markdown("---")
+st.markdown("Butuh opsi lain nanti? Bilang aja — tapi ini satu visual dulu sesuai permintaan.")
