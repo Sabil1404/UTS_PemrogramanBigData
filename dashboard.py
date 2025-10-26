@@ -112,7 +112,7 @@ if uploaded_file is not None:
                 # show annotated image if available
                 try:
                     result_img = results[0].plot(labels=True)
-                    st.image(result_img, caption="Detection Results (annotated)", use_column_width=True)
+                    st.image(result_img, caption="Detection Results (annotated)", use_container_width=True)
                 except Exception:
                     pass
             except Exception:
@@ -204,3 +204,4 @@ else:
 # ------------------------
 st.markdown("---")
 st.markdown("Catatan: jika ingin deploy, gunakan lazy-load model agar UI tidak lama saat startup. Pilih mode 'Demo' untuk uji coba tanpa model.")
+
