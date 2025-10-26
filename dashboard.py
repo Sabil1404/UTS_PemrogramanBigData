@@ -180,7 +180,7 @@ if len(st.session_state["records"]) > 0:
         path=["pred_class"],
         values="count",
         color="avg_confidence",
-        color_continuous_scale="Yellow",
+        color_continuous_scale="Yellows",
         color_continuous_midpoint=agg["avg_confidence"].mean(),
         hover_data={"count": True, "avg_confidence": True}
     )
@@ -197,6 +197,7 @@ else:
 # ------------------------
 st.markdown("---")
 st.caption("👀 SeeBil — A smart glance, powered by your vision ✨")
+
 
 
 
