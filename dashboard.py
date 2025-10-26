@@ -29,14 +29,15 @@ def show_image_limited(img_obj, caption=None, max_width=400):
 # Dummy predict (fallback)
 # ------------------------
 def dummy_predict(img: Image.Image):
-    classes = ["Anjing", "Ayam", "Kupu-Kupu"]
+    classes = ['Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower',
+               'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 'Brinjal', 'Bottle_Gourd', 'Bitter_Gourd', 'Bean']
     idx = np.random.randint(0, len(classes))
     conf = float(np.round(np.random.uniform(0.5, 0.98), 3))
     bbox = (10, 10, img.width - 10, img.height - 10)
     return classes[idx], conf, bbox
 
 # ------------------------
-# Lazy-load models (optional)
+# Lazy-load models
 # ------------------------
 @st.cache_resource
 def get_yolo_model():
@@ -48,7 +49,6 @@ def get_classifier():
     import tensorflow as tf
     return tf.keras.models.load_model("model/klasifikasi.h5")
 
-# Try load models but don't crash app if unavailable
 try:
     yolo_model = get_yolo_model()
 except Exception:
@@ -90,11 +90,6 @@ body {
     background-color: #fbf8ff;
     text-align: center;
 }
-.sidebar .sidebar-content {
-    background-color: #f8f8ff;
-    border-radius: 12px;
-    padding: 12px;
-}
 .footer-note {
     text-align: center;
     color: #666;
@@ -104,7 +99,7 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
-# Header (SeeBil + subtitle in Indonesian)
+# Header
 st.markdown('<div class="title">SeeBil</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Melihat lebih dekat, memahami lebih dalam — sentuhan cerdas dari pandanganmu.</div>', unsafe_allow_html=True)
 
@@ -113,21 +108,21 @@ st.markdown('<div class="subtitle">Melihat lebih dekat, memahami lebih dalam —
 # ------------------------
 menu = st.sidebar.selectbox("Pilih Mode:", ["🔍 Deteksi Objek (YOLO)", "📸 Klasifikasi Gambar", "⚙️ Demo (Tanpa model)"])
 persist_csv = st.sidebar.checkbox("Simpan ke CSV setiap upload", value=False)
-csv_path = st.sidebar.text_input("Path CSV (jika centang Simpan)", value="data/records.csv")
+csv_path = st.sidebar.text_input("Path CSV (jika Simpan diaktifkan)", value="data/records.csv")
 max_display_width = st.sidebar.number_input("Max width gambar (px)", min_value=150, max_value=1200, value=380, step=50)
 
 if st.sidebar.button("🗑️ Hapus Semua Record"):
     st.session_state["records"] = []
     st.sidebar.success("Semua record session dihapus.")
 
-# session init
 if "records" not in st.session_state:
     st.session_state["records"] = []
 
 # ------------------------
-# Upload area
+# Upload Area
 # ------------------------
-uploaded_file = st.file_uploader("📸 Unggah gambar (satu-per-satu)", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("📸 Unggah gambar", type=["jpg", "jpeg", "png"])
+
 if uploaded_file is not None:
     try:
         img = Image.open(uploaded_file).convert("RGB")
@@ -143,39 +138,42 @@ if uploaded_file is not None:
         pred_class = "Tidak diketahui"
         confidence = 0.0
 
-        # Prediction behavior
+        # ------------------------
+        # YOLO MODE
+        # ------------------------
         if menu == "🔍 Deteksi Objek (YOLO)":
             st.subheader("🔍 Hasil Deteksi Objek")
             if yolo_model is None:
-                st.warning("Model YOLO tidak tersedia. Pilih mode 'Demo' jika ingin coba tanpa model.")
+                st.warning("Model YOLO tidak tersedia.")
                 pred_class, confidence, _ = dummy_predict(img)
             else:
                 try:
                     results = yolo_model(np.array(img))
-                    # annotated image (limited width)
-                    try:
-                        result_img = results[0].plot(labels=True)
-                        show_image_limited(result_img, caption="Hasil Deteksi (annotated)", max_width=int(max_display_width))
-                    except Exception:
-                        pass
-
                     boxes = results[0].boxes
                     if boxes and len(boxes.cls) > 0:
                         best_idx = int(np.argmax(boxes.conf))
                         class_id = int(boxes.cls[best_idx])
                         pred_class = results[0].names[class_id]
                         confidence = float(boxes.conf[best_idx].item())
-                        st.success(f"Objek terdeteksi: **{pred_class}** — Confidence: {confidence*100:.2f}%")
+                        st.success(f"Objek: **{pred_class}** — Confidence: {confidence*100:.2f}%")
                     else:
-                        st.info("Tidak ada objek yang terdeteksi.")
+                        st.info("Tidak ada objek terdeteksi.")
                 except Exception as e:
-                    st.error(f"Terjadi kesalahan saat mendeteksi: {e}")
+                    st.error(f"Kesalahan deteksi: {e}")
                     pred_class, confidence, _ = dummy_predict(img)
 
+        # ------------------------
+        # CLASSIFICATION MODE (15 kelas sayuran)
+        # ------------------------
         elif menu == "📸 Klasifikasi Gambar":
-            st.subheader("🔬 Hasil Klasifikasi")
+            st.subheader("🌿 Hasil Klasifikasi Gambar")
+            class_labels = [
+                'Tomato', 'Radish', 'Pumpkin', 'Potato', 'Papaya', 'Cucumber', 'Cauliflower',
+                'Carrot', 'Capsicum', 'Cabbage', 'Broccoli', 'Brinjal',
+                'Bottle_Gourd', 'Bitter_Gourd', 'Bean'
+            ]
             if classifier is None:
-                st.warning("Model klasifikasi tidak tersedia. Pilih mode 'Demo' jika ingin coba tanpa model.")
+                st.warning("Model klasifikasi tidak tersedia.")
                 pred_class, confidence, _ = dummy_predict(img)
             else:
                 try:
@@ -184,22 +182,24 @@ if uploaded_file is not None:
                     arr = np.expand_dims(arr, axis=0) / 255.0
                     pred = classifier.predict(arr)
                     idx = int(np.argmax(pred))
-                    class_labels = ['Anjing', 'Ayam', 'Kupu-Kupu']
                     pred_class = class_labels[idx] if 0 <= idx < len(class_labels) else f"Class_{idx}"
                     confidence = float(np.max(pred))
-                    st.success(f"Hasil Prediksi: **{pred_class}**")
+                    st.success(f"Hasil: **{pred_class}**")
                     st.write(f"Akurasi: {confidence*100:.2f}%")
                 except Exception as e:
-                    st.error(f"Terjadi kesalahan saat klasifikasi: {e}")
+                    st.error(f"Kesalahan klasifikasi: {e}")
                     pred_class, confidence, _ = dummy_predict(img)
+
+        # ------------------------
+        # DEMO MODE
+        # ------------------------
         else:
-            # Demo mode
-            demo_classes = ["Anjing", "Ayam", "Kupu-Kupu"]
-            pred_class = np.random.choice(demo_classes)
-            confidence = float(np.round(np.random.uniform(0.5, 0.98), 3))
+            pred_class, confidence, _ = dummy_predict(img)
             st.info(f"(Demo) Prediksi: **{pred_class}** — Confidence: {confidence*100:.1f}%")
 
-        # Save record
+        # ------------------------
+        # Simpan hasil
+        # ------------------------
         record = {
             "filename": getattr(uploaded_file, "name", f"img_{len(st.session_state['records'])+1}.jpg"),
             "uploaded_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -208,7 +208,7 @@ if uploaded_file is not None:
             "confidence": round(float(confidence), 4)
         }
         st.session_state["records"].append(record)
-        st.success("Hasil prediksi disimpan (session).")
+        st.success("Hasil prediksi disimpan di session.")
 
         if persist_csv:
             try:
@@ -220,30 +220,22 @@ if uploaded_file is not None:
                 st.error(f"Gagal simpan CSV: {e}")
 
 # ------------------------
-# Treemap Visualization (interactive Plotly)
+# Treemap Interaktif
 # ------------------------
 if len(st.session_state["records"]) > 0:
     df = pd.DataFrame(st.session_state["records"])
-
-    # validation
     if "pred_class" not in df.columns or df["pred_class"].isnull().all():
-        st.warning("Tidak ada data 'pred_class' yang valid. Upload gambar terlebih dahulu.")
+        st.warning("Tidak ada data prediksi yang valid.")
     else:
         df = df.dropna(subset=["pred_class"])
-        # aggregate: count & mean confidence
         agg = (
             df.groupby("pred_class", dropna=True)
             .agg(count=("filename", "count"), avg_confidence=("confidence", "mean"))
             .reset_index()
         )
-
-        if agg.empty:
-            st.info("Belum ada data prediksi yang valid untuk divisualisasikan.")
-        else:
+        if not agg.empty:
             st.markdown("---")
             st.subheader("🌳 Treemap Interaktif — Confidence per Kelas")
-
-            # Use count as size, avg_confidence as color
             fig = px.treemap(
                 agg,
                 path=["pred_class"],
@@ -256,7 +248,7 @@ if len(st.session_state["records"]) > 0:
             fig.update_layout(margin=dict(t=30, l=10, r=10, b=10), coloraxis_colorbar=dict(title="Avg Confidence"))
             st.plotly_chart(fig, use_container_width=True)
 else:
-    st.info("Belum ada gambar yang diunggah — unggah gambar untuk melihat treemap.")
+    st.info("Belum ada gambar yang diunggah — unggah untuk melihat treemap.")
 
 # Footer
 st.markdown('<div class="footer-note">✨ Crafted with a subtle personal touch — SeeBil</div>', unsafe_allow_html=True)
