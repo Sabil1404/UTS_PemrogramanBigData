@@ -143,21 +143,21 @@ st.markdown("""
 
 # SINGLE VISUAL: SCATTER
 # --------------------------
-elif menu == "📊 Visualisasi: Scatter":
-    st.header("📊 Scatter Plot (satu saja)")
-    st.write("Upload CSV (opsional). Kalau tidak, contoh dataset Iris akan dipakai.")
+elif menu == "📊 Visualisasi: Scatter"
+st.header("📊 Scatter Plot (satu saja)")
+st.write("Upload CSV (opsional). Kalau tidak, contoh dataset Iris akan dipakai.")
 
-    uploaded_csv = st.file_uploader("Upload CSV untuk divisualisasi (opsional)", type=["csv"], key="csv_scatter")
-    if uploaded_csv:
-        try:
-            df = pd.read_csv(uploaded_csv)
-        except Exception as e:
-            st.error(f"Gagal membaca CSV: {e}")
-            df = pd.DataFrame()
+uploaded_csv = st.file_uploader("Upload CSV untuk divisualisasi (opsional)", type=["csv"], key="csv_scatter")
+if uploaded_csv:
+    try:
+        df = pd.read_csv(uploaded_csv)
+    except Exception as e:
+        st.error(f"Gagal membaca CSV: {e}")
+        df = pd.DataFrame()
     else:
         df = px.data.iris()
-
-    if df.empty:
+        
+        if df.empty:
         st.warning("Data kosong — upload CSV yang valid.")
     else:
         st.write("Preview data:", df.head())
@@ -192,3 +192,4 @@ elif menu == "📊 Visualisasi: Scatter":
 # Footer
 st.markdown("---")
 st.markdown("Butuh opsi lain nanti? Bilang aja — tapi ini satu visual dulu sesuai permintaan.")
+
