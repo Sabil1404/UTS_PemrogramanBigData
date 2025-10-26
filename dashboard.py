@@ -40,9 +40,7 @@ st.markdown("""
             text-align: center;
             font-size: 50px;
             font-weight: 800;
-            background: linear-gradient(90deg, #FF5733, #FFC300);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #0047AB; 
             margin-bottom: 4px;
         }
         .subtitle {
@@ -197,6 +195,7 @@ else:
 # ------------------------
 st.markdown("---")
 st.caption("👀 SeeBil — A smart glance, powered by your vision ✨")
+
 
 
 
