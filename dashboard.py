@@ -10,7 +10,7 @@ import plotly.express as px
 # Dummy predict (fallback)
 # ------------------------
 def dummy_predict(img: Image.Image):
-    classes = ["Anjing", "Kucing", "Burung"]
+    classes = ["Anjing", "Kucing", "Kupu-Kupu"]
     idx = np.random.randint(0, len(classes))
     conf = float(np.round(np.random.uniform(0.5, 0.98), 3))
     bbox = (10, 10, img.width - 10, img.height - 10)
@@ -200,3 +200,4 @@ else:
 # ------------------------
 st.markdown("---")
 st.markdown("Catatan: jika ingin deploy, gunakan lazy-load model agar UI tidak lama saat startup. Pilih mode 'Demo' untuk uji coba tanpa model.")
+
