@@ -77,7 +77,7 @@ if uploaded_file is not None:
         st.stop()
 
     st.markdown('<div class="upload-box">', unsafe_allow_html=True)
-    st.image(img, caption="Uploaded Image", use_column_width=True)
+    st.image(img, caption="Uploaded Image", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ------------------------
@@ -204,4 +204,3 @@ else:
 # ------------------------
 st.markdown("---")
 st.markdown("Catatan: jika ingin deploy, gunakan lazy-load model agar UI tidak lama saat startup. Pilih mode 'Demo' untuk uji coba tanpa model.")
-
